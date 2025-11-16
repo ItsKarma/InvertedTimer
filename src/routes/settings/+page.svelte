@@ -12,7 +12,7 @@
 	let selectedSound = 'beep';
 	let volume = 5;
 	let logoUrl = '';
-	let showLogo = true;
+	let showLogo = false;
 	let autoStartRest = true;
 	let autoStartNextRound = true;
 	let showRoundCounter = true;
@@ -93,7 +93,7 @@
 		selectedSound = 'beep';
 		volume = 5;
 		logoUrl = '';
-		showLogo = true;
+		showLogo = false;
 		autoStartRest = true;
 		autoStartNextRound = true;
 		showRoundCounter = true;

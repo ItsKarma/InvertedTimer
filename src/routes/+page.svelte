@@ -23,7 +23,7 @@
 	let showRoundCounter = true;
 	let clockFormat = '12h';
 	let logoUrl = '';
-	let showLogo = true;
+	let showLogo = false;
 
 	async function incrementRounds() {
 		try {
