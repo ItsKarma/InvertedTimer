@@ -104,7 +104,11 @@
 			if (audioRef) {
 				audioRef.volume = audioVolume;
 				audioRef.src = audioSrc;
-				audioRef.play();
+				audioRef.play().catch((error) => {
+					console.warn('Audio playback failed:', error);
+					// Fallback: visual notification via toast
+					toast('Timer Complete!', { duration: 3000 });
+				});
 			} else {
 				console.error('Audio Error');
 				toast.error('Audio Error', { duration: 10000 });
@@ -155,6 +159,10 @@
 
 <svelte:head>
 	<title>Inverted Timer</title>
+	<meta
+		name="description"
+		content="Round timer for martial arts training. Perfect for boxing, BJJ, MMA, and combat sports. Customizable work and rest periods with visual and audio cues between rounds."
+	/>
 </svelte:head>
 
 <svelte:window on:keydown={handleKeydown} />
@@ -185,6 +193,7 @@
 				<div class="iconButtonWrapper">
 					<button
 						class="iconButton"
+						aria-label="Increase minutes"
 						on:click={() => {
 							desiredMinutes = desiredMinutes + 1;
 							minutes = desiredMinutes;
@@ -194,6 +203,7 @@
 					</button>
 					<button
 						class="iconButton"
+						aria-label="Decrease minutes"
 						on:click={() => {
 							if (desiredMinutes > 0) {
 								desiredMinutes = desiredMinutes - 1;
@@ -215,6 +225,7 @@
 				<div class="iconButtonWrapper">
 					<button
 						class="iconButton"
+						aria-label="Increase seconds by 5"
 						on:click={() => {
 							const newSeconds = (desiredSeconds + 5) % 60;
 							desiredSeconds = newSeconds;
@@ -225,6 +236,7 @@
 					</button>
 					<button
 						class="iconButton"
+						aria-label="Decrease seconds by 5"
 						on:click={() => {
 							const newSeconds = desiredSeconds === 0 ? 55 : desiredSeconds - 5;
 							desiredSeconds = newSeconds;
@@ -412,6 +424,22 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.1s ease;
+	}
+
+	.iconButton:hover:not(:disabled) {
+		opacity: 0.8;
+	}
+
+	.iconButton:active:not(:disabled) {
+		transform: scale(0.95);
+	}
+
+	.iconButton:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
 	}
 
 	.iconButtonSmall {
@@ -425,6 +453,22 @@
 		display: inline-flex;
 		align-items: center;
 		justify-content: center;
+		transition:
+			opacity 0.2s ease,
+			transform 0.1s ease;
+	}
+
+	.iconButtonSmall:hover:not(:disabled) {
+		opacity: 0.8;
+	}
+
+	.iconButtonSmall:active:not(:disabled) {
+		transform: scale(0.95);
+	}
+
+	.iconButtonSmall:disabled {
+		opacity: 0.3;
+		cursor: not-allowed;
 	}
 
 	.controls {
@@ -449,6 +493,19 @@
 		border-radius: 1vw;
 		cursor: pointer;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+		transition:
+			transform 0.1s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.startButton:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+	}
+
+	.startButton:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	}
 
 	.stopButton {
@@ -462,5 +519,18 @@
 		border-radius: 1vw;
 		cursor: pointer;
 		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+		transition:
+			transform 0.1s ease,
+			box-shadow 0.2s ease;
+	}
+
+	.stopButton:hover {
+		transform: translateY(-2px);
+		box-shadow: 0 6px 12px rgba(0, 0, 0, 0.4);
+	}
+
+	.stopButton:active {
+		transform: translateY(0);
+		box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
 	}
 </style>
