@@ -55,8 +55,17 @@
 		}
 	}
 
-	function handleKeyup(event) {
+	function handleKeydown(event) {
 		if (event.code === 'Space') {
+			// Prevent default spacebar behavior (scrolling the page)
+			event.preventDefault();
+
+			// Don't trigger if user is typing in an input/textarea
+			const target = event.target;
+			if (target.tagName === 'INPUT' || target.tagName === 'TEXTAREA') {
+				return;
+			}
+
 			if (isRunning || isResting) {
 				stopTimer();
 			} else {
@@ -148,7 +157,7 @@
 	<title>Inverted Timer</title>
 </svelte:head>
 
-<svelte:window on:keyup={handleKeyup} />
+<svelte:window on:keydown={handleKeydown} />
 
 <div class={backgroundClass}>
 	<main>
@@ -306,7 +315,7 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-		background: rgb(31, 159, 22);
+		background: rgb(13, 75, 9);
 	}
 
 	.resting {
@@ -316,7 +325,7 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-		background: rgb(205, 27, 27);
+		background: rgb(128, 16, 16);
 	}
 
 	.default {
@@ -326,7 +335,7 @@
 		flex-direction: column;
 		justify-content: flex-start;
 		align-items: center;
-		background: rgb(32, 213, 216);
+		background: rgb(12, 96, 98);
 	}
 
 	.clockContainer {
@@ -435,10 +444,11 @@
 		font-size: 2.5vw;
 		font-weight: bold;
 		color: white;
-		background-color: #2481eb;
-		border: 0;
+		background-color: #0f5aa8;
+		border: 3px solid white;
 		border-radius: 1vw;
 		cursor: pointer;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	}
 
 	.stopButton {
@@ -447,9 +457,10 @@
 		font-size: 2.5vw;
 		font-weight: bold;
 		color: white;
-		background-color: #eb3b53;
-		border: 0;
+		background-color: #a81f33;
+		border: 3px solid white;
 		border-radius: 1vw;
 		cursor: pointer;
+		box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
 	}
 </style>
