@@ -1,0 +1,447 @@
+<script>
+	import { onMount, onDestroy } from 'svelte';
+	import { PlusSquare, MinusSquare } from 'lucide-svelte';
+	import { toast, Toaster } from 'svelte-sonner';
+	import { browser } from '$app/environment';
+
+	let audioRef;
+	let audioSrc = '/beepLoud.mp3';
+	let audioVolume = 1;
+	let desiredMinutes = 5;
+	let desiredSeconds = 0;
+	let desiredRestMinutes = 1;
+	let desiredRestSeconds = 0;
+	let minutes = 5;
+	let seconds = 0;
+	let isRunning = false;
+	let isResting = false;
+	let time = new Date();
+
+	async function incrementRounds() {
+		try {
+			await fetch('/api/incrementRounds', {
+				method: 'POST'
+			});
+		} catch (error) {
+			console.error('Error:', error);
+		}
+	}
+
+	function startTimer() {
+		isResting = false;
+		isRunning = true;
+		minutes = desiredMinutes;
+		seconds = desiredSeconds;
+	}
+
+	function stopTimer() {
+		isRunning = false;
+		isResting = false;
+		minutes = desiredMinutes;
+		seconds = desiredSeconds;
+	}
+
+	function toggleRunningResting() {
+		if (isRunning) {
+			minutes = desiredRestMinutes;
+			seconds = desiredRestSeconds;
+			isRunning = false;
+			isResting = true;
+		} else if (isResting) {
+			minutes = desiredMinutes;
+			seconds = desiredSeconds;
+			isRunning = true;
+			isResting = false;
+		}
+	}
+
+	function handleKeyup(event) {
+		if (event.code === 'Space') {
+			if (isRunning || isResting) {
+				stopTimer();
+			} else {
+				startTimer();
+			}
+		}
+	}
+
+	let timerInterval;
+	let timeInterval;
+
+	onMount(() => {
+		if (browser) {
+			audioRef = new Audio();
+
+			// Timer logic: update clock every second
+			timeInterval = setInterval(() => {
+				time = new Date();
+			}, 1000);
+
+			// Timer logic: countdown
+			timerInterval = setInterval(() => {
+				if (isRunning || isResting) {
+					if (minutes === 0 && seconds === 0) {
+						toggleRunningResting();
+						return;
+					}
+
+					// Create local variables for minutes and seconds
+					let localMinutes = minutes;
+					let localSeconds = seconds;
+
+					// Check if we need to decrement the timer
+					if (minutes !== 0 && seconds === 0) {
+						// Rolling down the minutes and setting seconds to 59
+						seconds = 59;
+						minutes = minutes - 1;
+						localSeconds = 59;
+						localMinutes = minutes;
+					} else if (seconds !== 0) {
+						// Decrementing seconds
+						seconds = seconds - 1;
+						localSeconds = seconds;
+					} else {
+						console.error(`Error: Timer Logic: ${minutes}:${seconds}`);
+						toast.error(`Error: Timer Logic: ${minutes}:${seconds}`, {
+							duration: 10000
+						});
+					}
+
+					// Check if the timer is at 0:00
+					if (localMinutes === 0 && localSeconds === 0) {
+						// Play audio
+						if (audioRef) {
+							audioRef.volume = audioVolume;
+							audioRef.src = audioSrc;
+							audioRef.play();
+						} else {
+							console.error('Audio Error');
+							toast.error('Audio Error', { duration: 10000 });
+						}
+						// Increment rounds
+						if (isRunning) {
+							incrementRounds();
+						}
+					}
+				}
+			}, 1000);
+		}
+	});
+
+	onDestroy(() => {
+		if (timerInterval) clearInterval(timerInterval);
+		if (timeInterval) clearInterval(timeInterval);
+	});
+
+	// Format time with leading zeros
+	function formatTime(value) {
+		return value < 10 ? `0${value}` : value;
+	}
+
+	// Compute background class
+	$: backgroundClass = isRunning ? 'running' : isResting ? 'resting' : 'default';
+</script>
+
+<svelte:head>
+	<title>Inverted Timer</title>
+</svelte:head>
+
+<svelte:window on:keyup={handleKeyup} />
+
+<div class={backgroundClass}>
+	<main>
+		<!-- Toaster - Keep at top -->
+		<Toaster position="top-right" />
+
+		<!-- Clock -->
+		<div class="clockContainer">
+			<p>
+				{#if browser}
+					{time.toLocaleTimeString([], {
+						hour: '2-digit',
+						minute: '2-digit',
+						hour12: true
+					})}
+				{/if}
+			</p>
+		</div>
+
+		<!-- Timer -->
+		<div class="timerContainer">
+			{#if !isRunning && !isResting}
+				<div class="iconButtonWrapper">
+					<button
+						class="iconButton"
+						on:click={() => {
+							desiredMinutes = desiredMinutes + 1;
+							minutes = desiredMinutes;
+						}}
+					>
+						<PlusSquare size={48} />
+					</button>
+					<button
+						class="iconButton"
+						on:click={() => {
+							if (desiredMinutes > 0) {
+								desiredMinutes = desiredMinutes - 1;
+								minutes = desiredMinutes;
+							}
+						}}
+						disabled={desiredMinutes === 0}
+					>
+						<MinusSquare size={48} />
+					</button>
+				</div>
+			{/if}
+			<div>
+				<h1 class="timer">
+					{formatTime(minutes)}:{formatTime(seconds)}
+				</h1>
+			</div>
+			{#if !isRunning && !isResting}
+				<div class="iconButtonWrapper">
+					<button
+						class="iconButton"
+						on:click={() => {
+							const newSeconds = (desiredSeconds + 5) % 60;
+							desiredSeconds = newSeconds;
+							seconds = newSeconds;
+						}}
+					>
+						<PlusSquare size={48} />
+					</button>
+					<button
+						class="iconButton"
+						on:click={() => {
+							const newSeconds = desiredSeconds === 0 ? 55 : desiredSeconds - 5;
+							desiredSeconds = newSeconds;
+							seconds = newSeconds;
+						}}
+					>
+						<MinusSquare size={48} />
+					</button>
+				</div>
+			{/if}
+		</div>
+
+		<!-- Start/Stop -->
+		<div class="controls">
+			{#if !isRunning && !isResting}
+				<button on:click={startTimer} class="startButton">Start</button>
+			{/if}
+			{#if isRunning || isResting}
+				<button on:click={stopTimer} class="stopButton">Stop</button>
+			{/if}
+		</div>
+
+		<!-- Small Rest Timer -->
+		<div>
+			{#if !isRunning && !isResting}
+				<div class="timerSmallPlaceholder">
+					<div class="timerSmallContainer">
+						<div class="iconButtonWrapper">
+							<button
+								class="iconButtonSmall"
+								on:click={() => {
+									desiredRestMinutes = desiredRestMinutes + 1;
+								}}
+							>
+								<PlusSquare size={24} />
+							</button>
+							<button
+								class="iconButtonSmall"
+								on:click={() => {
+									if (desiredRestMinutes > 0) {
+										desiredRestMinutes = desiredRestMinutes - 1;
+									}
+								}}
+								disabled={desiredRestMinutes === 0}
+							>
+								<MinusSquare size={24} />
+							</button>
+						</div>
+						<div>
+							<h1 class="timerSmall">
+								{formatTime(desiredRestMinutes)}:{formatTime(desiredRestSeconds)}
+							</h1>
+						</div>
+						<div class="iconButtonWrapper">
+							<button
+								class="iconButtonSmall"
+								on:click={() => {
+									const newRestSeconds = (desiredRestSeconds + 5) % 60;
+									desiredRestSeconds = newRestSeconds;
+								}}
+							>
+								<PlusSquare size={24} />
+							</button>
+							<button
+								class="iconButtonSmall"
+								on:click={() => {
+									const newRestSeconds = desiredRestSeconds === 0 ? 55 : desiredRestSeconds - 5;
+									desiredRestSeconds = newRestSeconds;
+								}}
+							>
+								<MinusSquare size={24} />
+							</button>
+						</div>
+					</div>
+				</div>
+			{:else}
+				<div class="controlsPlaceholder"></div>
+			{/if}
+		</div>
+	</main>
+</div>
+
+<style>
+	.running {
+		min-height: 100vh;
+		padding: 0 0.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		background: rgb(31, 159, 22);
+	}
+
+	.resting {
+		min-height: 100vh;
+		padding: 0 0.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		background: rgb(205, 27, 27);
+	}
+
+	.default {
+		min-height: 100vh;
+		padding: 0 0.5rem;
+		display: flex;
+		flex-direction: column;
+		justify-content: flex-start;
+		align-items: center;
+		background: rgb(32, 213, 216);
+	}
+
+	.clockContainer {
+		margin-top: -12vw;
+		margin-bottom: -12vw;
+		font-size: 12vw;
+		color: white;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.timerContainer {
+		margin: 0;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.timerSmallContainer {
+		height: 5vw;
+		width: 100%;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.timerSmallPlaceholder p {
+		font-size: 2vw;
+		color: white;
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.timerSmallPlaceholder {
+		height: 5vw;
+		width: 100%;
+	}
+
+	.timer {
+		margin: 0;
+		font-size: 25vw;
+		color: white;
+		font-family: Courier, 'Courier New', 'Lucida Sans Typewriter', monospace;
+	}
+
+	.timerSmall {
+		margin: 0;
+		font-size: 4vw;
+		color: white;
+		font-family: Courier, 'Courier New', 'Lucida Sans Typewriter', monospace;
+	}
+
+	.iconButtonWrapper {
+		display: flex;
+		flex-direction: column;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.iconButton {
+		margin: 0.25rem 1vw;
+		padding: 0.25rem 0.25rem;
+		font-size: 2.5vw;
+		background: none;
+		color: white;
+		border: none;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.iconButtonSmall {
+		margin: 0 0.5vw;
+		padding: 0.25rem 0.25rem;
+		font-size: 1.5vw;
+		background: none;
+		color: white;
+		border: none;
+		cursor: pointer;
+		display: inline-flex;
+		align-items: center;
+		justify-content: center;
+	}
+
+	.controls {
+		display: flex;
+		justify-content: center;
+		align-items: center;
+	}
+
+	.controlsPlaceholder {
+		height: 5rem;
+		width: 100%;
+	}
+
+	.startButton {
+		margin: 0vw 0vw;
+		padding: 1vw 5vw;
+		font-size: 2.5vw;
+		font-weight: bold;
+		color: white;
+		background-color: #2481eb;
+		border: 0;
+		border-radius: 1vw;
+		cursor: pointer;
+	}
+
+	.stopButton {
+		margin: 0vw 0vw;
+		padding: 1vw 5vw;
+		font-size: 2.5vw;
+		font-weight: bold;
+		color: white;
+		background-color: #eb3b53;
+		border: 0;
+		border-radius: 1vw;
+		cursor: pointer;
+	}
+</style>
