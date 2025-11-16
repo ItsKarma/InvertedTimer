@@ -1,6 +1,6 @@
 <script>
 	import { onMount, onDestroy } from 'svelte';
-	import { PlusSquare, MinusSquare } from 'lucide-svelte';
+	import { PlusSquare, MinusSquare, Settings } from 'lucide-svelte';
 	import { toast, Toaster } from 'svelte-sonner';
 	import { browser } from '$app/environment';
 
@@ -136,6 +136,14 @@
 		if (browser) {
 			audioRef = new Audio();
 
+			// Load volume from localStorage
+			const savedVolume = localStorage.getItem('volume');
+			if (savedVolume !== null) {
+				const volumeValue = parseInt(savedVolume, 10);
+				// Convert from 0-10 scale to 0-1 scale (10 = max volume)
+				audioVolume = volumeValue / 10;
+			}
+
 			// Timer logic: update clock every second
 			timeInterval = setInterval(() => {
 				time = new Date();
@@ -171,6 +179,11 @@
 	<main>
 		<!-- Toaster - Keep at top -->
 		<Toaster position="top-right" />
+
+		<!-- Settings Button -->
+		<a href="/settings" class="settingsButton" aria-label="Settings">
+			<Settings size={28} />
+		</a>
 
 		<!-- Clock -->
 		<div class="clockContainer">
@@ -362,6 +375,35 @@
 
 	.clock-placeholder {
 		opacity: 0;
+	}
+
+	.settingsButton {
+		position: fixed;
+		top: 1.5rem;
+		right: 1.5rem;
+		color: white;
+		background: rgba(255, 255, 255, 0.1);
+		border: 2px solid white;
+		border-radius: 50%;
+		width: 56px;
+		height: 56px;
+		display: flex;
+		align-items: center;
+		justify-content: center;
+		cursor: pointer;
+		transition:
+			opacity 0.2s ease,
+			transform 0.2s ease;
+		z-index: 100;
+	}
+
+	.settingsButton:hover {
+		opacity: 0.8;
+		transform: scale(1.05);
+	}
+
+	.settingsButton:active {
+		transform: scale(0.95);
 	}
 
 	.timerContainer {
