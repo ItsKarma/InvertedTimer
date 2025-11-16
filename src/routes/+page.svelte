@@ -74,8 +74,9 @@
 	}
 
 	function handleKeydown(event) {
-		if (event.code === 'Space') {
-			// Prevent default spacebar behavior (scrolling the page)
+		// Check for Space or Right Arrow (for wireless presenters)
+		if (event.code === 'Space' || event.code === 'ArrowRight') {
+			// Prevent default behavior (scrolling/navigation)
 			event.preventDefault();
 
 			// Don't trigger if user is typing in an input/textarea
