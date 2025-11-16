@@ -17,6 +17,12 @@
 	let isResting = false;
 	let time = new Date();
 
+	// Settings from localStorage
+	let autoStartRest = true;
+	let autoStartNextRound = true;
+	let showRoundCounter = true;
+	let clockFormat = '12h';
+
 	async function incrementRounds() {
 		try {
 			await fetch('/api/incrementRounds', {
@@ -43,15 +49,27 @@
 
 	function toggleRunningResting() {
 		if (isRunning) {
-			minutes = desiredRestMinutes;
-			seconds = desiredRestSeconds;
-			isRunning = false;
-			isResting = true;
+			// Work period ended, check if we should auto-start rest
+			if (autoStartRest) {
+				minutes = desiredRestMinutes;
+				seconds = desiredRestSeconds;
+				isRunning = false;
+				isResting = true;
+			} else {
+				// Stop timer if auto-start rest is disabled
+				stopTimer();
+			}
 		} else if (isResting) {
-			minutes = desiredMinutes;
-			seconds = desiredSeconds;
-			isRunning = true;
-			isResting = false;
+			// Rest period ended, check if we should auto-start next round
+			if (autoStartNextRound) {
+				minutes = desiredMinutes;
+				seconds = desiredSeconds;
+				isRunning = true;
+				isResting = false;
+			} else {
+				// Stop timer if auto-start next round is disabled
+				stopTimer();
+			}
 		}
 	}
 
@@ -144,6 +162,27 @@
 				audioVolume = volumeValue / 10;
 			}
 
+			// Load behavior settings from localStorage
+			const savedAutoStartRest = localStorage.getItem('autoStartRest');
+			if (savedAutoStartRest !== null) {
+				autoStartRest = savedAutoStartRest === 'true';
+			}
+
+			const savedAutoStartNextRound = localStorage.getItem('autoStartNextRound');
+			if (savedAutoStartNextRound !== null) {
+				autoStartNextRound = savedAutoStartNextRound === 'true';
+			}
+
+			const savedShowRoundCounter = localStorage.getItem('showRoundCounter');
+			if (savedShowRoundCounter !== null) {
+				showRoundCounter = savedShowRoundCounter === 'true';
+			}
+
+			const savedClockFormat = localStorage.getItem('clockFormat');
+			if (savedClockFormat !== null) {
+				clockFormat = savedClockFormat;
+			}
+
 			// Timer logic: update clock every second
 			timeInterval = setInterval(() => {
 				time = new Date();
@@ -186,19 +225,21 @@
 		</a>
 
 		<!-- Clock -->
-		<div class="clockContainer">
-			<p>
-				{#if browser}
-					{time.toLocaleTimeString([], {
-						hour: '2-digit',
-						minute: '2-digit',
-						hour12: true
-					})}
-				{:else}
-					<span class="clock-placeholder">00:00 AM</span>
-				{/if}
-			</p>
-		</div>
+		{#if clockFormat !== 'hide'}
+			<div class="clockContainer">
+				<p>
+					{#if browser}
+						{time.toLocaleTimeString([], {
+							hour: '2-digit',
+							minute: '2-digit',
+							hour12: clockFormat === '12h'
+						})}
+					{:else}
+						<span class="clock-placeholder">{clockFormat === '12h' ? '00:00 AM' : '00:00'}</span>
+					{/if}
+				</p>
+			</div>
+		{/if}
 
 		<!-- Timer -->
 		<div class="timerContainer">
