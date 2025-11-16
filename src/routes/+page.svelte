@@ -68,6 +68,57 @@
 	let timerInterval;
 	let timeInterval;
 
+	function tick() {
+		if (minutes === 0 && seconds === 0) {
+			toggleRunningResting();
+			return;
+		}
+
+		// Check if we need to decrement the timer
+		if (minutes !== 0 && seconds === 0) {
+			// Rolling down the minutes and setting seconds to 59
+			seconds = 59;
+			minutes = minutes - 1;
+		} else if (seconds !== 0) {
+			// Decrementing seconds
+			seconds = seconds - 1;
+		} else {
+			console.error(`Error: Timer Logic: ${minutes}:${seconds}`);
+			toast.error(`Error: Timer Logic: ${minutes}:${seconds}`, {
+				duration: 10000
+			});
+		}
+
+		// Check if the timer just hit 0:00
+		if (minutes === 0 && seconds === 0) {
+			// Play audio
+			if (audioRef) {
+				audioRef.volume = audioVolume;
+				audioRef.src = audioSrc;
+				audioRef.play();
+			} else {
+				console.error('Audio Error');
+				toast.error('Audio Error', { duration: 10000 });
+			}
+			// Increment rounds
+			if (isRunning) {
+				incrementRounds();
+			}
+		}
+	}
+
+	// Reactive statement: start/stop timer interval based on state
+	$: if (browser) {
+		if (timerInterval) {
+			clearInterval(timerInterval);
+			timerInterval = null;
+		}
+
+		if (isRunning || isResting) {
+			timerInterval = setInterval(tick, 1000);
+		}
+	}
+
 	onMount(() => {
 		if (browser) {
 			audioRef = new Audio();
@@ -75,55 +126,6 @@
 			// Timer logic: update clock every second
 			timeInterval = setInterval(() => {
 				time = new Date();
-			}, 1000);
-
-			// Timer logic: countdown
-			timerInterval = setInterval(() => {
-				if (isRunning || isResting) {
-					if (minutes === 0 && seconds === 0) {
-						toggleRunningResting();
-						return;
-					}
-
-					// Create local variables for minutes and seconds
-					let localMinutes = minutes;
-					let localSeconds = seconds;
-
-					// Check if we need to decrement the timer
-					if (minutes !== 0 && seconds === 0) {
-						// Rolling down the minutes and setting seconds to 59
-						seconds = 59;
-						minutes = minutes - 1;
-						localSeconds = 59;
-						localMinutes = minutes;
-					} else if (seconds !== 0) {
-						// Decrementing seconds
-						seconds = seconds - 1;
-						localSeconds = seconds;
-					} else {
-						console.error(`Error: Timer Logic: ${minutes}:${seconds}`);
-						toast.error(`Error: Timer Logic: ${minutes}:${seconds}`, {
-							duration: 10000
-						});
-					}
-
-					// Check if the timer is at 0:00
-					if (localMinutes === 0 && localSeconds === 0) {
-						// Play audio
-						if (audioRef) {
-							audioRef.volume = audioVolume;
-							audioRef.src = audioSrc;
-							audioRef.play();
-						} else {
-							console.error('Audio Error');
-							toast.error('Audio Error', { duration: 10000 });
-						}
-						// Increment rounds
-						if (isRunning) {
-							incrementRounds();
-						}
-					}
-				}
 			}, 1000);
 		}
 	});
@@ -162,6 +164,8 @@
 						minute: '2-digit',
 						hour12: true
 					})}
+				{:else}
+					<span class="clock-placeholder">00:00 AM</span>
 				{/if}
 			</p>
 		</div>
@@ -333,6 +337,10 @@
 		display: flex;
 		justify-content: center;
 		align-items: center;
+	}
+
+	.clock-placeholder {
+		opacity: 0;
 	}
 
 	.timerContainer {

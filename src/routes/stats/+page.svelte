@@ -1,43 +1,12 @@
 <script>
-	import { onMount } from 'svelte';
+	export let data;
 
-	let data = [];
-	let loading = true;
-	let error = null;
-
-	let totalRounds = 0;
-	let byDate = {};
-	let byIP = {};
-
-	async function fetchKeys() {
-		try {
-			loading = true;
-			const response = await fetch('/api/getKeys', {
-				method: 'GET'
-			});
-			const resJson = await response.json();
-
-			if (resJson.values && Array.isArray(resJson.values)) {
-				data = resJson.values;
-				totalRounds = resJson.totalRounds || 0;
-				byDate = resJson.byDate || {};
-				byIP = resJson.byIP || {};
-			} else {
-				console.error('Error: Response is not valid');
-				console.error(resJson);
-				error = 'Invalid response format';
-			}
-		} catch (err) {
-			console.error('Error:', err);
-			error = 'Failed to fetch statistics';
-		} finally {
-			loading = false;
-		}
-	}
-
-	onMount(() => {
-		fetchKeys();
-	});
+	$: statsData = data.data || [];
+	$: totalRounds = data.totalRounds || 0;
+	$: byDate = data.byDate || {};
+	$: byIP = data.byIP || {};
+	$: error = data.error || null;
+	$: loading = false;
 </script>
 
 <svelte:head>
@@ -88,14 +57,15 @@
 				<div class="stats-section">
 					<h3>Detailed Data (Date : IP)</h3>
 					<ul>
-						{#if data.length === 0}
+						{#if statsData.length === 0}
 							<li>No data found</li>
+						{:else}
+							{#each statsData.sort((a, b) => b.date.localeCompare(a.date)) as item}
+								<li>
+									<strong>{item.date}</strong> : <strong>{item.ip}</strong> - {item.rounds} rounds
+								</li>
+							{/each}
 						{/if}
-						{#each data.sort((a, b) => b.date.localeCompare(a.date)) as item}
-							<li>
-								<strong>{item.date}</strong> : <strong>{item.ip}</strong> - {item.rounds} rounds
-							</li>
-						{/each}
 					</ul>
 				</div>
 			</div>
