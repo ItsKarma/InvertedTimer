@@ -12,6 +12,7 @@
 	let selectedSound = 'beep';
 	let volume = 5;
 	let logoUrl = '';
+	let showLogo = true;
 	let autoStartRest = true;
 	let autoStartNextRound = true;
 	let showRoundCounter = true;
@@ -33,6 +34,12 @@
 		localStorage.setItem('autoStartNextRound', autoStartNextRound.toString());
 		localStorage.setItem('showRoundCounter', showRoundCounter.toString());
 		localStorage.setItem('clockFormat', clockFormat);
+		localStorage.setItem('showLogo', showLogo.toString());
+		if (logoUrl) {
+			localStorage.setItem('logoUrl', logoUrl);
+		} else {
+			localStorage.removeItem('logoUrl');
+		}
 	}
 
 	onMount(() => {
@@ -62,6 +69,16 @@
 				clockFormat = savedClockFormat;
 			}
 
+			const savedLogoUrl = localStorage.getItem('logoUrl');
+			if (savedLogoUrl !== null) {
+				logoUrl = savedLogoUrl;
+			}
+
+			const savedShowLogo = localStorage.getItem('showLogo');
+			if (savedShowLogo !== null) {
+				showLogo = savedShowLogo === 'true';
+			}
+
 			hasLoadedSettings = true;
 			isLoading = false;
 		}
@@ -76,6 +93,7 @@
 		selectedSound = 'beep';
 		volume = 5;
 		logoUrl = '';
+		showLogo = true;
 		autoStartRest = true;
 		autoStartNextRound = true;
 		showRoundCounter = true;
@@ -86,12 +104,22 @@
 			localStorage.removeItem('autoStartNextRound');
 			localStorage.removeItem('showRoundCounter');
 			localStorage.removeItem('clockFormat');
+			localStorage.removeItem('logoUrl');
+			localStorage.removeItem('showLogo');
 		}
 	}
 
 	function handleLogoUpload(event) {
 		const file = event.target.files?.[0];
 		if (file) {
+			// Check file size (1MB = 1048576 bytes)
+			const maxSize = 1048576; // 1MB
+			if (file.size > maxSize) {
+				alert('File size must be under 1MB. Please choose a smaller image.');
+				event.target.value = ''; // Reset file input
+				return;
+			}
+
 			const reader = new FileReader();
 			reader.onload = (e) => {
 				logoUrl = e.target?.result;
@@ -208,22 +236,33 @@
 					<p class="sectionDescription">Customize with your gym or team logo</p>
 
 					<div class="settingItem">
+						<label for="showLogo" class="checkboxLabel">
+							<input type="checkbox" id="showLogo" bind:checked={showLogo} />
+							<span class="labelText">Show Logo</span>
+							<span class="labelHint">Display logo in top left corner</span>
+						</label>
+					</div>
+
+					<div class="settingItem">
 						<label for="logo">
 							<span class="labelText">Logo Upload</span>
-							<span class="labelHint">Appears in top left corner</span>
+							<span class="labelHint">Leave empty to use default logo</span>
+							<span class="labelHint"
+								>Maximum size: 1MB | Recommended: 200x200px or similar square</span
+							>
 						</label>
 						<div class="logoUpload">
 							{#if logoUrl}
 								<div class="logoPreview">
 									<img src={logoUrl} alt="Logo preview" />
 									<button type="button" on:click={() => (logoUrl = '')} class="removeButton">
-										Remove
+										Remove Custom Logo
 									</button>
 								</div>
 							{:else}
 								<label for="logoFile" class="uploadButton">
 									<Upload size={20} />
-									Upload Logo
+									Upload Custom Logo
 									<input
 										type="file"
 										id="logoFile"

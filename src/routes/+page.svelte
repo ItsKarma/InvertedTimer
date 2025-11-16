@@ -22,6 +22,8 @@
 	let autoStartNextRound = true;
 	let showRoundCounter = true;
 	let clockFormat = '12h';
+	let logoUrl = '';
+	let showLogo = true;
 
 	async function incrementRounds() {
 		try {
@@ -184,6 +186,16 @@
 				clockFormat = savedClockFormat;
 			}
 
+			const savedLogoUrl = localStorage.getItem('logoUrl');
+			if (savedLogoUrl !== null) {
+				logoUrl = savedLogoUrl;
+			}
+
+			const savedShowLogo = localStorage.getItem('showLogo');
+			if (savedShowLogo !== null) {
+				showLogo = savedShowLogo === 'true';
+			}
+
 			// Timer logic: update clock every second
 			timeInterval = setInterval(() => {
 				time = new Date();
@@ -220,6 +232,12 @@
 		<!-- Toaster - Keep at top -->
 		<Toaster position="top-right" />
 
+		<!-- Branding Logo -->
+		{#if showLogo}
+			<div class="brandingLogo">
+				<img src={logoUrl || '/inverted-gear-academy.png'} alt="Logo" class:spinning={isRunning} />
+			</div>
+		{/if}
 		<!-- Settings Button -->
 		<a href="/settings" class="settingsButton" aria-label="Settings">
 			<Settings size={28} />
@@ -417,6 +435,33 @@
 
 	.clock-placeholder {
 		opacity: 0;
+	}
+
+	.brandingLogo {
+		position: fixed;
+		top: 1.5rem;
+		left: 1.5rem;
+		z-index: 100;
+	}
+
+	.brandingLogo img {
+		max-width: 150px;
+		max-height: 80px;
+		object-fit: contain;
+		filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.3));
+	}
+
+	.brandingLogo img.spinning {
+		animation: spin 5s linear infinite;
+	}
+
+	@keyframes spin {
+		from {
+			transform: rotate(0deg);
+		}
+		to {
+			transform: rotate(360deg);
+		}
 	}
 
 	.settingsButton {
