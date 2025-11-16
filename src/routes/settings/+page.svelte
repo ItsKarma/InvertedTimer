@@ -35,6 +35,7 @@
 		localStorage.setItem('showRoundCounter', showRoundCounter.toString());
 		localStorage.setItem('clockFormat', clockFormat);
 		localStorage.setItem('showLogo', showLogo.toString());
+		localStorage.setItem('backgroundColor', JSON.stringify(backgroundColor));
 		if (logoUrl) {
 			localStorage.setItem('logoUrl', logoUrl);
 		} else {
@@ -79,6 +80,15 @@
 				showLogo = savedShowLogo === 'true';
 			}
 
+			const savedBackgroundColor = localStorage.getItem('backgroundColor');
+			if (savedBackgroundColor !== null) {
+				try {
+					backgroundColor = JSON.parse(savedBackgroundColor);
+				} catch (e) {
+					console.error('Failed to parse backgroundColor from localStorage:', e);
+				}
+			}
+
 			hasLoadedSettings = true;
 			isLoading = false;
 		}
@@ -106,6 +116,7 @@
 			localStorage.removeItem('clockFormat');
 			localStorage.removeItem('logoUrl');
 			localStorage.removeItem('showLogo');
+			localStorage.removeItem('backgroundColor');
 		}
 	}
 
@@ -147,53 +158,6 @@
 			<div class="loadingState">Loading settings...</div>
 		{:else}
 			<div class="settingsGrid">
-				<!-- Theme Colors Section -->
-				<section class="settingsSection">
-					<h2>Theme Colors</h2>
-					<p class="sectionDescription">
-						Customize the background colors for different timer states
-					</p>
-
-					<div class="settingItem">
-						<label for="colorDefault">
-							<span class="labelText">Default Background</span>
-							<span class="labelHint">When timer is idle</span>
-						</label>
-						<input
-							type="color"
-							id="colorDefault"
-							bind:value={backgroundColor.default}
-							class="colorInput"
-						/>
-					</div>
-
-					<div class="settingItem">
-						<label for="colorRunning">
-							<span class="labelText">Running Background</span>
-							<span class="labelHint">During work period</span>
-						</label>
-						<input
-							type="color"
-							id="colorRunning"
-							bind:value={backgroundColor.running}
-							class="colorInput"
-						/>
-					</div>
-
-					<div class="settingItem">
-						<label for="colorResting">
-							<span class="labelText">Resting Background</span>
-							<span class="labelHint">During rest period</span>
-						</label>
-						<input
-							type="color"
-							id="colorResting"
-							bind:value={backgroundColor.resting}
-							class="colorInput"
-						/>
-					</div>
-				</section>
-
 				<!-- Sound Settings Section -->
 				<section class="settingsSection">
 					<h2>Sound Settings</h2>
@@ -273,6 +237,53 @@
 								</label>
 							{/if}
 						</div>
+					</div>
+				</section>
+
+				<!-- Theme Colors Section -->
+				<section class="settingsSection">
+					<h2>Theme Colors</h2>
+					<p class="sectionDescription">
+						Customize the background colors for different timer states
+					</p>
+
+					<div class="settingItem">
+						<label for="colorDefault">
+							<span class="labelText">Default Background</span>
+							<span class="labelHint">When timer is idle</span>
+						</label>
+						<input
+							type="color"
+							id="colorDefault"
+							bind:value={backgroundColor.default}
+							class="colorInput"
+						/>
+					</div>
+
+					<div class="settingItem">
+						<label for="colorRunning">
+							<span class="labelText">Running Background</span>
+							<span class="labelHint">During work period</span>
+						</label>
+						<input
+							type="color"
+							id="colorRunning"
+							bind:value={backgroundColor.running}
+							class="colorInput"
+						/>
+					</div>
+
+					<div class="settingItem">
+						<label for="colorResting">
+							<span class="labelText">Resting Background</span>
+							<span class="labelHint">During rest period</span>
+						</label>
+						<input
+							type="color"
+							id="colorResting"
+							bind:value={backgroundColor.resting}
+							class="colorInput"
+						/>
 					</div>
 				</section>
 

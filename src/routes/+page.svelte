@@ -24,6 +24,11 @@
 	let clockFormat = '12h';
 	let logoUrl = '';
 	let showLogo = false;
+	let backgroundColor = {
+		default: '#0c6062',
+		running: '#0d4b09',
+		resting: '#801010'
+	};
 
 	async function incrementRounds() {
 		try {
@@ -196,6 +201,15 @@
 				showLogo = savedShowLogo === 'true';
 			}
 
+			const savedBackgroundColor = localStorage.getItem('backgroundColor');
+			if (savedBackgroundColor !== null) {
+				try {
+					backgroundColor = JSON.parse(savedBackgroundColor);
+				} catch (e) {
+					console.error('Failed to parse backgroundColor:', e);
+				}
+			}
+
 			// Timer logic: update clock every second
 			timeInterval = setInterval(() => {
 				time = new Date();
@@ -213,8 +227,13 @@
 		return value < 10 ? `0${value}` : value;
 	}
 
-	// Compute background class
+	// Compute background class and color
 	$: backgroundClass = isRunning ? 'running' : isResting ? 'resting' : 'default';
+	$: currentBackgroundColor = isRunning
+		? backgroundColor.running
+		: isResting
+			? backgroundColor.resting
+			: backgroundColor.default;
 </script>
 
 <svelte:head>
@@ -227,7 +246,7 @@
 
 <svelte:window on:keydown={handleKeydown} />
 
-<div class={backgroundClass}>
+<div class={backgroundClass} style="background-color: {currentBackgroundColor}">
 	<main>
 		<!-- Toaster - Keep at top -->
 		<Toaster position="top-right" />
