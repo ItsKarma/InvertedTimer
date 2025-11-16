@@ -120,6 +120,47 @@
 		}
 	}
 
+	function resetSoundSettings() {
+		selectedSound = 'beep';
+		volume = 5;
+		if (browser) {
+			localStorage.removeItem('volume');
+		}
+	}
+
+	function resetBrandingSettings() {
+		logoUrl = '';
+		showLogo = false;
+		if (browser) {
+			localStorage.removeItem('logoUrl');
+			localStorage.removeItem('showLogo');
+		}
+	}
+
+	function resetThemeColors() {
+		backgroundColor = {
+			default: '#0c6062',
+			running: '#0d4b09',
+			resting: '#801010'
+		};
+		if (browser) {
+			localStorage.removeItem('backgroundColor');
+		}
+	}
+
+	function resetBehaviorSettings() {
+		autoStartRest = true;
+		autoStartNextRound = true;
+		showRoundCounter = true;
+		clockFormat = '12h';
+		if (browser) {
+			localStorage.removeItem('autoStartRest');
+			localStorage.removeItem('autoStartNextRound');
+			localStorage.removeItem('showRoundCounter');
+			localStorage.removeItem('clockFormat');
+		}
+	}
+
 	function handleLogoUpload(event) {
 		const file = event.target.files?.[0];
 		if (file) {
@@ -160,9 +201,15 @@
 			<div class="settingsGrid">
 				<!-- Sound Settings Section -->
 				<section class="settingsSection">
-					<h2>Sound Settings</h2>
-					<p class="sectionDescription">Configure audio feedback for timer completion</p>
-
+					<div class="sectionHeader">
+						<div>
+							<h2>Sound Settings</h2>
+							<p class="sectionDescription">Configure audio feedback for timer completion</p>
+						</div>
+						<button type="button" on:click={resetSoundSettings} class="sectionResetButton">
+							Reset
+						</button>
+					</div>
 					<div class="settingItem">
 						<label for="sound">
 							<span class="labelText">Sound Effect</span>
@@ -196,9 +243,15 @@
 
 				<!-- Branding Section -->
 				<section class="settingsSection">
-					<h2>Branding</h2>
-					<p class="sectionDescription">Customize with your gym or team logo</p>
-
+					<div class="sectionHeader">
+						<div>
+							<h2>Branding</h2>
+							<p class="sectionDescription">Customize with your gym or team logo</p>
+						</div>
+						<button type="button" on:click={resetBrandingSettings} class="sectionResetButton">
+							Reset
+						</button>
+					</div>
 					<div class="settingItem">
 						<label for="showLogo" class="checkboxLabel">
 							<input type="checkbox" id="showLogo" bind:checked={showLogo} />
@@ -242,11 +295,17 @@
 
 				<!-- Theme Colors Section -->
 				<section class="settingsSection">
-					<h2>Theme Colors</h2>
-					<p class="sectionDescription">
-						Customize the background colors for different timer states
-					</p>
-
+					<div class="sectionHeader">
+						<div>
+							<h2>Theme Colors</h2>
+							<p class="sectionDescription">
+								Customize the background colors for different timer states
+							</p>
+						</div>
+						<button type="button" on:click={resetThemeColors} class="sectionResetButton">
+							Reset
+						</button>
+					</div>
 					<div class="settingItem">
 						<label for="colorDefault">
 							<span class="labelText">Default Background</span>
@@ -289,9 +348,15 @@
 
 				<!-- Behavior Settings Section -->
 				<section class="settingsSection">
-					<h2>Behavior</h2>
-					<p class="sectionDescription">Configure timer automation and display preferences</p>
-
+					<div class="sectionHeader">
+						<div>
+							<h2>Behavior</h2>
+							<p class="sectionDescription">Configure timer automation and display preferences</p>
+						</div>
+						<button type="button" on:click={resetBehaviorSettings} class="sectionResetButton">
+							Reset
+						</button>
+					</div>
 					<div class="settingItem">
 						<label for="autoStartRest" class="checkboxLabel">
 							<input type="checkbox" id="autoStartRest" bind:checked={autoStartRest} />
@@ -398,13 +463,44 @@
 		border: 2px solid rgba(255, 255, 255, 0.2);
 	}
 
+	.sectionHeader {
+		display: flex;
+		justify-content: space-between;
+		align-items: flex-start;
+		gap: 1rem;
+		margin-bottom: 1.5rem;
+	}
+
+	.sectionResetButton {
+		padding: 0.5rem 1rem;
+		background: rgba(255, 255, 255, 0.1);
+		border: 2px solid rgba(255, 255, 255, 0.4);
+		border-radius: 8px;
+		color: white;
+		font-size: 0.875rem;
+		cursor: pointer;
+		transition:
+			opacity 0.2s ease,
+			transform 0.1s ease;
+		white-space: nowrap;
+		flex-shrink: 0;
+	}
+
+	.sectionResetButton:hover {
+		opacity: 0.8;
+	}
+
+	.sectionResetButton:active {
+		transform: scale(0.98);
+	}
+
 	.settingsSection h2 {
 		margin: 0 0 0.5rem 0;
 		font-size: 1.5rem;
 	}
 
 	.sectionDescription {
-		margin: 0 0 1.5rem 0;
+		margin: 0;
 		opacity: 0.8;
 		font-size: 0.9rem;
 	}
