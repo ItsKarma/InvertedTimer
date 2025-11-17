@@ -6,6 +6,12 @@ Martial Arts Timer System
 
 ## Development
 
+Get the env vars from Vercel.
+
+```
+npx vercel env pull .env.local
+```
+
 ```
   npm run dev
     Starts the development server.
