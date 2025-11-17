@@ -15,7 +15,6 @@
 	let showLogo = false;
 	let autoStartRest = true;
 	let autoStartNextRound = true;
-	let showRoundCounter = true;
 	let clockFormat = '12h';
 	let hasLoadedSettings = false;
 	let isLoading = true;
@@ -32,9 +31,7 @@
 		localStorage.setItem('volume', volume.toString());
 		localStorage.setItem('autoStartRest', autoStartRest.toString());
 		localStorage.setItem('autoStartNextRound', autoStartNextRound.toString());
-		localStorage.setItem('showRoundCounter', showRoundCounter.toString());
 		localStorage.setItem('clockFormat', clockFormat);
-		localStorage.setItem('showLogo', showLogo.toString());
 		localStorage.setItem('backgroundColor', JSON.stringify(backgroundColor));
 		if (logoUrl) {
 			localStorage.setItem('logoUrl', logoUrl);
@@ -58,11 +55,6 @@
 			const savedAutoStartNextRound = localStorage.getItem('autoStartNextRound');
 			if (savedAutoStartNextRound !== null) {
 				autoStartNextRound = savedAutoStartNextRound === 'true';
-			}
-
-			const savedShowRoundCounter = localStorage.getItem('showRoundCounter');
-			if (savedShowRoundCounter !== null) {
-				showRoundCounter = savedShowRoundCounter === 'true';
 			}
 
 			const savedClockFormat = localStorage.getItem('clockFormat');
@@ -106,13 +98,11 @@
 		showLogo = false;
 		autoStartRest = true;
 		autoStartNextRound = true;
-		showRoundCounter = true;
 		clockFormat = '12h';
 		if (browser) {
 			localStorage.removeItem('volume');
 			localStorage.removeItem('autoStartRest');
 			localStorage.removeItem('autoStartNextRound');
-			localStorage.removeItem('showRoundCounter');
 			localStorage.removeItem('clockFormat');
 			localStorage.removeItem('logoUrl');
 			localStorage.removeItem('showLogo');
@@ -151,12 +141,10 @@
 	function resetBehaviorSettings() {
 		autoStartRest = true;
 		autoStartNextRound = true;
-		showRoundCounter = true;
 		clockFormat = '12h';
 		if (browser) {
 			localStorage.removeItem('autoStartRest');
 			localStorage.removeItem('autoStartNextRound');
-			localStorage.removeItem('showRoundCounter');
 			localStorage.removeItem('clockFormat');
 		}
 	}
@@ -370,14 +358,6 @@
 							<input type="checkbox" id="autoStartNextRound" bind:checked={autoStartNextRound} />
 							<span class="labelText">Auto-start Next Round</span>
 							<span class="labelHint">Automatically begin next work period after rest</span>
-						</label>
-					</div>
-
-					<div class="settingItem">
-						<label for="showRoundCounter" class="checkboxLabel">
-							<input type="checkbox" id="showRoundCounter" bind:checked={showRoundCounter} />
-							<span class="labelText">Show Round Counter</span>
-							<span class="labelHint">Display total rounds completed</span>
 						</label>
 					</div>
 					<div class="settingItem">

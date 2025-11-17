@@ -20,7 +20,6 @@
 	// Settings from localStorage
 	let autoStartRest = true;
 	let autoStartNextRound = true;
-	let showRoundCounter = true;
 	let clockFormat = '12h';
 	let logoUrl = '';
 	let showLogo = false;
@@ -179,11 +178,6 @@
 			const savedAutoStartNextRound = localStorage.getItem('autoStartNextRound');
 			if (savedAutoStartNextRound !== null) {
 				autoStartNextRound = savedAutoStartNextRound === 'true';
-			}
-
-			const savedShowRoundCounter = localStorage.getItem('showRoundCounter');
-			if (savedShowRoundCounter !== null) {
-				showRoundCounter = savedShowRoundCounter === 'true';
 			}
 
 			const savedClockFormat = localStorage.getItem('clockFormat');
