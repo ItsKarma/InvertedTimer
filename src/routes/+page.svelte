@@ -5,8 +5,11 @@
 	import { browser } from '$app/environment';
 
 	let audioRef;
-	let audioSrc = '/beepLoud.mp3';
+	let knockAudioRef;
+	let audioSrc = '/beep.mp3';
 	let audioVolume = 1;
+	let warningVolume = 0.5;
+	let play10SecondWarning = true;
 	let desiredMinutes = 5;
 	let desiredSeconds = 0;
 	let desiredRestMinutes = 1;
@@ -116,6 +119,12 @@
 		} else if (seconds !== 0) {
 			// Decrementing seconds
 			seconds = seconds - 1;
+
+			// Play knock sound at 10 seconds
+			if (minutes === 0 && seconds === 10 && play10SecondWarning && knockAudioRef) {
+				knockAudioRef.volume = warningVolume;
+				knockAudioRef.play().catch((e) => console.error('Failed to play knock audio:', e));
+			}
 		} else {
 			console.error(`Error: Timer Logic: ${minutes}:${seconds}`);
 			toast.error(`Error: Timer Logic: ${minutes}:${seconds}`, {
@@ -160,6 +169,7 @@
 	onMount(() => {
 		if (browser) {
 			audioRef = new Audio();
+			knockAudioRef = new Audio('/knock-knock-knock.mp3');
 
 			// Load volume from localStorage
 			const savedVolume = localStorage.getItem('volume');
@@ -167,6 +177,18 @@
 				const volumeValue = parseInt(savedVolume, 10);
 				// Convert from 0-10 scale to 0-1 scale (10 = max volume)
 				audioVolume = volumeValue / 10;
+			}
+
+			const savedPlay10SecondWarning = localStorage.getItem('play10SecondWarning');
+			if (savedPlay10SecondWarning !== null) {
+				play10SecondWarning = savedPlay10SecondWarning === 'true';
+			}
+
+			const savedWarningVolume = localStorage.getItem('warningVolume');
+			if (savedWarningVolume !== null) {
+				const volumeValue = parseInt(savedWarningVolume, 10);
+				// Convert from 0-10 scale to 0-1 scale (10 = max volume)
+				warningVolume = volumeValue / 10;
 			}
 
 			// Load behavior settings from localStorage

@@ -9,8 +9,9 @@
 		running: '#0d4b09',
 		resting: '#801010'
 	};
-	let selectedSound = 'beep';
 	let volume = 5;
+	let play10SecondWarning = true;
+	let warningVolume = 5;
 	let logoUrl = '';
 	let showLogo = false;
 	let autoStartRest = true;
@@ -19,16 +20,11 @@
 	let hasLoadedSettings = false;
 	let isLoading = true;
 
-	const soundOptions = [
-		{ value: 'beep', label: 'Beep (Default)' },
-		{ value: 'clack', label: 'Clack' },
-		{ value: 'bang', label: 'Bang' },
-		{ value: 'custom', label: 'Custom Upload' }
-	];
-
 	// Auto-save settings to localStorage whenever they change (after initial load)
 	$: if (browser && hasLoadedSettings) {
 		localStorage.setItem('volume', volume.toString());
+		localStorage.setItem('play10SecondWarning', play10SecondWarning.toString());
+		localStorage.setItem('warningVolume', warningVolume.toString());
 		localStorage.setItem('autoStartRest', autoStartRest.toString());
 		localStorage.setItem('autoStartNextRound', autoStartNextRound.toString());
 		localStorage.setItem('clockFormat', clockFormat);
@@ -45,6 +41,16 @@
 			const savedVolume = localStorage.getItem('volume');
 			if (savedVolume !== null) {
 				volume = parseInt(savedVolume, 10);
+			}
+
+			const savedPlay10SecondWarning = localStorage.getItem('play10SecondWarning');
+			if (savedPlay10SecondWarning !== null) {
+				play10SecondWarning = savedPlay10SecondWarning === 'true';
+			}
+
+			const savedWarningVolume = localStorage.getItem('warningVolume');
+			if (savedWarningVolume !== null) {
+				warningVolume = parseInt(savedWarningVolume, 10);
 			}
 
 			const savedAutoStartRest = localStorage.getItem('autoStartRest');
@@ -92,8 +98,9 @@
 			running: '#0d4b09',
 			resting: '#801010'
 		};
-		selectedSound = 'beep';
 		volume = 5;
+		play10SecondWarning = true;
+		warningVolume = 5;
 		logoUrl = '';
 		showLogo = false;
 		autoStartRest = true;
@@ -101,6 +108,8 @@
 		clockFormat = '12h';
 		if (browser) {
 			localStorage.removeItem('volume');
+			localStorage.removeItem('play10SecondWarning');
+			localStorage.removeItem('warningVolume');
 			localStorage.removeItem('autoStartRest');
 			localStorage.removeItem('autoStartNextRound');
 			localStorage.removeItem('clockFormat');
@@ -111,10 +120,13 @@
 	}
 
 	function resetSoundSettings() {
-		selectedSound = 'beep';
 		volume = 5;
+		play10SecondWarning = true;
+		warningVolume = 5;
 		if (browser) {
 			localStorage.removeItem('volume');
+			localStorage.removeItem('play10SecondWarning');
+			localStorage.removeItem('warningVolume');
 		}
 	}
 
@@ -198,27 +210,6 @@
 							Reset
 						</button>
 					</div>
-					<div class="settingItem">
-						<label for="sound">
-							<span class="labelText">Sound Effect</span>
-							<span class="labelHint">Plays when timer completes</span>
-						</label>
-						<select id="sound" bind:value={selectedSound} class="select">
-							{#each soundOptions as option}
-								<option value={option.value}>{option.label}</option>
-							{/each}
-						</select>
-					</div>
-
-					{#if selectedSound === 'custom'}
-						<div class="settingItem">
-							<label for="customSound">
-								<span class="labelText">Upload Custom Sound</span>
-								<span class="labelHint">MP3, WAV, or OGG format</span>
-							</label>
-							<input type="file" id="customSound" accept="audio/*" class="fileInput" />
-						</div>
-					{/if}
 
 					<div class="settingItem">
 						<label for="volume">
@@ -227,8 +218,29 @@
 						</label>
 						<input type="range" id="volume" bind:value={volume} min="0" max="10" class="slider" />
 					</div>
-				</section>
+					<div class="settingItem">
+						<label for="play10SecondWarning" class="checkboxLabel">
+							<input type="checkbox" id="play10SecondWarning" bind:checked={play10SecondWarning} />
+							<span class="labelText">10-Second Warning</span>
+							<span class="labelHint">Play knock sound when 10 seconds remain</span>
+						</label>
+					</div>
 
+					<div class="settingItem">
+						<label for="warningVolume">
+							<span class="labelText">Warning Volume</span>
+							<span class="labelHint">{warningVolume}</span>
+						</label>
+						<input
+							type="range"
+							id="warningVolume"
+							bind:value={warningVolume}
+							min="0"
+							max="10"
+							class="slider"
+						/>
+					</div>
+				</section>
 				<!-- Branding Section -->
 				<section class="settingsSection">
 					<div class="sectionHeader">
@@ -562,16 +574,6 @@
 		background: white;
 		cursor: pointer;
 		border: 2px solid #0c6062;
-	}
-
-	.fileInput {
-		width: 100%;
-		padding: 0.5rem;
-		color: white;
-		background: rgba(255, 255, 255, 0.1);
-		border: 2px solid white;
-		border-radius: 8px;
-		cursor: pointer;
 	}
 
 	.checkboxLabel {
