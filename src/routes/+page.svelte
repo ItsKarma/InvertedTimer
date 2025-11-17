@@ -25,7 +25,7 @@
 	let autoStartNextRound = true;
 	let clockFormat = '12h';
 	let logoUrl = '';
-	let showLogo = false;
+	let showLogo = true;
 	let backgroundColor = {
 		default: '#0c6062',
 		running: '#0d4b09',

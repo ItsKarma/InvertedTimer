@@ -13,7 +13,7 @@
 	let play10SecondWarning = true;
 	let warningVolume = 5;
 	let logoUrl = '';
-	let showLogo = false;
+	let showLogo = true;
 	let autoStartRest = true;
 	let autoStartNextRound = true;
 	let clockFormat = '12h';
@@ -102,7 +102,7 @@
 		play10SecondWarning = true;
 		warningVolume = 5;
 		logoUrl = '';
-		showLogo = false;
+		showLogo = true;
 		autoStartRest = true;
 		autoStartNextRound = true;
 		clockFormat = '12h';
@@ -132,7 +132,7 @@
 
 	function resetBrandingSettings() {
 		logoUrl = '';
-		showLogo = false;
+		showLogo = true;
 		if (browser) {
 			localStorage.removeItem('logoUrl');
 			localStorage.removeItem('showLogo');
