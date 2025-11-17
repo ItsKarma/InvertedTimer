@@ -10,7 +10,8 @@
 		resting: '#801010'
 	};
 	let volume = 5;
-	let play10SecondWarning = true;
+	let warningRunning = true;
+	let warningResting = false;
 	let warningVolume = 5;
 	let logoUrl = '';
 	let showLogo = true;
@@ -23,7 +24,8 @@
 	// Auto-save settings to localStorage whenever they change (after initial load)
 	$: if (browser && hasLoadedSettings) {
 		localStorage.setItem('volume', volume.toString());
-		localStorage.setItem('play10SecondWarning', play10SecondWarning.toString());
+		localStorage.setItem('warningRunning', warningRunning.toString());
+		localStorage.setItem('warningResting', warningResting.toString());
 		localStorage.setItem('warningVolume', warningVolume.toString());
 		localStorage.setItem('autoStartRest', autoStartRest.toString());
 		localStorage.setItem('autoStartNextRound', autoStartNextRound.toString());
@@ -43,9 +45,14 @@
 				volume = parseInt(savedVolume, 10);
 			}
 
-			const savedPlay10SecondWarning = localStorage.getItem('play10SecondWarning');
-			if (savedPlay10SecondWarning !== null) {
-				play10SecondWarning = savedPlay10SecondWarning === 'true';
+			const savedWarningRunning = localStorage.getItem('warningRunning');
+			if (savedWarningRunning !== null) {
+				warningRunning = savedWarningRunning === 'true';
+			}
+
+			const savedWarningResting = localStorage.getItem('warningResting');
+			if (savedWarningResting !== null) {
+				warningResting = savedWarningResting === 'true';
 			}
 
 			const savedWarningVolume = localStorage.getItem('warningVolume');
@@ -99,7 +106,8 @@
 			resting: '#801010'
 		};
 		volume = 5;
-		play10SecondWarning = true;
+		warningRunning = true;
+		warningResting = false;
 		warningVolume = 5;
 		logoUrl = '';
 		showLogo = true;
@@ -108,7 +116,8 @@
 		clockFormat = '12h';
 		if (browser) {
 			localStorage.removeItem('volume');
-			localStorage.removeItem('play10SecondWarning');
+			localStorage.removeItem('warningRunning');
+			localStorage.removeItem('warningResting');
 			localStorage.removeItem('warningVolume');
 			localStorage.removeItem('autoStartRest');
 			localStorage.removeItem('autoStartNextRound');
@@ -121,11 +130,13 @@
 
 	function resetSoundSettings() {
 		volume = 5;
-		play10SecondWarning = true;
+		warningRunning = true;
+		warningResting = false;
 		warningVolume = 5;
 		if (browser) {
 			localStorage.removeItem('volume');
-			localStorage.removeItem('play10SecondWarning');
+			localStorage.removeItem('warningRunning');
+			localStorage.removeItem('warningResting');
 			localStorage.removeItem('warningVolume');
 		}
 	}
@@ -218,11 +229,20 @@
 						</label>
 						<input type="range" id="volume" bind:value={volume} min="0" max="10" class="slider" />
 					</div>
+
 					<div class="settingItem">
-						<label for="play10SecondWarning" class="checkboxLabel">
-							<input type="checkbox" id="play10SecondWarning" bind:checked={play10SecondWarning} />
-							<span class="labelText">10-Second Warning</span>
-							<span class="labelHint">Play knock sound when 10 seconds remain</span>
+						<label for="warningRunning" class="checkboxLabel">
+							<input type="checkbox" id="warningRunning" bind:checked={warningRunning} />
+							<span class="labelText">10-Second Warning - Work Timer</span>
+							<span class="labelHint">Play knock sound during work period</span>
+						</label>
+					</div>
+
+					<div class="settingItem">
+						<label for="warningResting" class="checkboxLabel">
+							<input type="checkbox" id="warningResting" bind:checked={warningResting} />
+							<span class="labelText">10-Second Warning - Rest Timer</span>
+							<span class="labelHint">Play knock sound during rest period</span>
 						</label>
 					</div>
 

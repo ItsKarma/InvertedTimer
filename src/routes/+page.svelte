@@ -9,7 +9,8 @@
 	let audioSrc = '/beep.mp3';
 	let audioVolume = 1;
 	let warningVolume = 0.5;
-	let play10SecondWarning = true;
+	let warningRunning = true;
+	let warningResting = false;
 	let desiredMinutes = 5;
 	let desiredSeconds = 0;
 	let desiredRestMinutes = 1;
@@ -121,7 +122,8 @@
 			seconds = seconds - 1;
 
 			// Play knock sound at 10 seconds
-			if (minutes === 0 && seconds === 10 && play10SecondWarning && knockAudioRef) {
+			const shouldPlayWarning = isRunning ? warningRunning : isResting ? warningResting : false;
+			if (minutes === 0 && seconds === 10 && shouldPlayWarning && knockAudioRef) {
 				knockAudioRef.volume = warningVolume;
 				knockAudioRef.play().catch((e) => console.error('Failed to play knock audio:', e));
 			}
@@ -179,9 +181,14 @@
 				audioVolume = volumeValue / 10;
 			}
 
-			const savedPlay10SecondWarning = localStorage.getItem('play10SecondWarning');
-			if (savedPlay10SecondWarning !== null) {
-				play10SecondWarning = savedPlay10SecondWarning === 'true';
+			const savedWarningRunning = localStorage.getItem('warningRunning');
+			if (savedWarningRunning !== null) {
+				warningRunning = savedWarningRunning === 'true';
+			}
+
+			const savedWarningResting = localStorage.getItem('warningResting');
+			if (savedWarningResting !== null) {
+				warningResting = savedWarningResting === 'true';
 			}
 
 			const savedWarningVolume = localStorage.getItem('warningVolume');
