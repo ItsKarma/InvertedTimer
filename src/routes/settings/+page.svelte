@@ -15,6 +15,7 @@
 	let warningVolume = 5;
 	let logoUrl = '';
 	let showLogo = true;
+	let logoSize = 'medium';
 	let autoStartRest = true;
 	let autoStartNextRound = true;
 	let clockFormat = '12h';
@@ -30,6 +31,7 @@
 		localStorage.setItem('autoStartRest', autoStartRest.toString());
 		localStorage.setItem('autoStartNextRound', autoStartNextRound.toString());
 		localStorage.setItem('clockFormat', clockFormat);
+		localStorage.setItem('logoSize', logoSize);
 		localStorage.setItem('backgroundColor', JSON.stringify(backgroundColor));
 		if (logoUrl) {
 			localStorage.setItem('logoUrl', logoUrl);
@@ -85,6 +87,11 @@
 				showLogo = savedShowLogo === 'true';
 			}
 
+			const savedLogoSize = localStorage.getItem('logoSize');
+			if (savedLogoSize !== null) {
+				logoSize = savedLogoSize;
+			}
+
 			const savedBackgroundColor = localStorage.getItem('backgroundColor');
 			if (savedBackgroundColor !== null) {
 				try {
@@ -111,6 +118,7 @@
 		warningVolume = 5;
 		logoUrl = '';
 		showLogo = true;
+		logoSize = 'medium';
 		autoStartRest = true;
 		autoStartNextRound = true;
 		clockFormat = '12h';
@@ -124,6 +132,7 @@
 			localStorage.removeItem('clockFormat');
 			localStorage.removeItem('logoUrl');
 			localStorage.removeItem('showLogo');
+			localStorage.removeItem('logoSize');
 			localStorage.removeItem('backgroundColor');
 		}
 	}
@@ -144,9 +153,11 @@
 	function resetBrandingSettings() {
 		logoUrl = '';
 		showLogo = true;
+		logoSize = 'medium';
 		if (browser) {
 			localStorage.removeItem('logoUrl');
 			localStorage.removeItem('showLogo');
+			localStorage.removeItem('logoSize');
 		}
 	}
 
@@ -278,6 +289,19 @@
 							<span class="labelText">Show Logo</span>
 							<span class="labelHint">Display logo in top left corner</span>
 						</label>
+					</div>
+
+					<div class="settingItem">
+						<label for="logoSize">
+							<span class="labelText">Logo Size</span>
+						</label>
+						<select id="logoSize" bind:value={logoSize} class="select">
+							<option value="xsmall">Extra Small</option>
+							<option value="small">Small</option>
+							<option value="medium">Medium</option>
+							<option value="large">Large</option>
+							<option value="xlarge">Extra Large</option>
+						</select>
 					</div>
 
 					<div class="settingItem">

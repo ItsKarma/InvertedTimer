@@ -27,6 +27,7 @@
 	let clockFormat = '12h';
 	let logoUrl = '';
 	let showLogo = true;
+	let logoSize = 'medium';
 	let backgroundColor = {
 		default: '#0c6062',
 		running: '#0d4b09',
@@ -224,6 +225,11 @@
 				showLogo = savedShowLogo === 'true';
 			}
 
+			const savedLogoSize = localStorage.getItem('logoSize');
+			if (savedLogoSize !== null) {
+				logoSize = savedLogoSize;
+			}
+
 			const savedBackgroundColor = localStorage.getItem('backgroundColor');
 			if (savedBackgroundColor !== null) {
 				try {
@@ -249,6 +255,18 @@
 	function formatTime(value) {
 		return value < 10 ? `0${value}` : value;
 	}
+
+	// Compute logo size (square dimensions)
+	$: logoSizePx =
+		logoSize === 'xsmall'
+			? 60
+			: logoSize === 'small'
+				? 100
+				: logoSize === 'large'
+					? 180
+					: logoSize === 'xlarge'
+						? 240
+						: 140;
 
 	// Compute background class and color
 	$: backgroundClass = isRunning ? 'running' : isResting ? 'resting' : 'default';
@@ -277,7 +295,12 @@
 		<!-- Branding Logo -->
 		{#if showLogo}
 			<div class="brandingLogo">
-				<img src={logoUrl || '/inverted-gear-academy.png'} alt="Logo" class:spinning={isRunning} />
+				<img
+					src={logoUrl || '/inverted-gear-academy.png'}
+					alt="Logo"
+					class:spinning={isRunning}
+					style="max-width: {logoSizePx}px; max-height: {logoSizePx}px;"
+				/>
 			</div>
 		{/if}
 		<!-- Settings Button -->
