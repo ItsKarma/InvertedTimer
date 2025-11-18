@@ -28,6 +28,7 @@
 	let logoUrl = '';
 	let showLogo = true;
 	let logoSize = 'medium';
+	let settingsLoaded = false; // Track when localStorage settings are loaded
 	let backgroundColor = {
 		default: '#0c6062',
 		running: '#0d4b09',
@@ -243,6 +244,9 @@
 			timeInterval = setInterval(() => {
 				time = new Date();
 			}, 1000);
+
+			// Mark settings as loaded to prevent flash
+			settingsLoaded = true;
 		}
 	});
 
@@ -293,7 +297,7 @@
 		<Toaster position="top-right" />
 
 		<!-- Branding Logo -->
-		{#if showLogo}
+		{#if showLogo && settingsLoaded}
 			<div class="brandingLogo">
 				<img
 					src={logoUrl || '/inverted-gear-academy.png'}
