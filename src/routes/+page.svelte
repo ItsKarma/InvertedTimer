@@ -86,8 +86,16 @@
 	}
 
 	function handleKeydown(event) {
-		// Check for Space or Right Arrow (for wireless presenters)
-		if (event.code === 'Space' || event.code === 'ArrowRight') {
+		// Check for Space, Arrow keys, or Page Up/Down (for wireless presenters)
+		if (
+			event.code === 'Space' ||
+			event.code === 'ArrowRight' ||
+			event.code === 'ArrowLeft' ||
+			event.code === 'ArrowUp' ||
+			event.code === 'ArrowDown' ||
+			event.code === 'PageUp' ||
+			event.code === 'PageDown'
+		) {
 			// Prevent default behavior (scrolling/navigation)
 			event.preventDefault();
 
